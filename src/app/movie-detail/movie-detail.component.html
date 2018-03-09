@@ -1,0 +1,399 @@
+<div class="page-content">
+  <!--<div *ngIf="isLoading" style="text-align: center; height: 300px">-->
+    <!--<img src="assets/images/ellipsis.svg" alt="">-->
+  <!--</div>-->
+
+  <div *ngIf="message!=null" style="text-align: center">
+    <div class="alert alert-danger">
+      <strong>
+        <i class="ace-icon fa fa-times"></i>
+        Oh snap!
+      </strong>
+      no movie(s) found
+    </div>
+  </div>
+  <div *ngIf="message==null">
+    <div class="page-header">
+      <h1>
+        {{movie?.type == 'cinema'?'Cinema':'TV Series'}}
+        <small>
+          <i class="ace-icon fa fa-angle-double-right"></i>
+          {{movie?.title}}
+        </small>
+      </h1>
+    </div><!-- /.page-header -->
+    <div class="row">
+      <div class="col-md-8 widget-container-col ui-sortable">
+        <div class="widget-box widget-color-dark ui-sortable-handle no-border">
+          <div class="widget-body">
+            <div class="widget-main-movie">
+              <div class="video-container">
+
+                <div
+                  style="height: 400px; width: 100%;display: flex;justify-content: center;align-items: center;background-color: rgb(51,51,51)"
+                  *ngIf="playerLoading">
+                  <div class="col-xs-4 col-sm-4" style="display: flex;justify-content: center;align-items: center;">
+                    <!--<i class="ace-icon fa fa-frown-o grey bigger-300"></i>-->
+                    <img src="assets/images/ellipsis.svg" alt="">
+                  </div>
+                </div>
+
+                <div
+                  style="height: 400px; width: 100%;display: flex;justify-content: center;align-items: center;background-color: rgb(51,51,51)"
+                  *ngIf="noStream">
+                  <div class="col-xs-4 col-md-4 col-sm-4" style="display: flex;justify-content: center;align-items: center;">
+                    <!--<i class="ace-icon fa fa-frown-o grey bigger-300"></i>-->
+                    <img src="assets/images/pacman.svg" alt="">
+                  </div>
+
+                  <div class="col-xs-8 col-md-8 col-sm-8">
+                    <blockquote>
+                      <p class="line-height-125 grey">
+                        No stream available for this movie right now. <br>
+                        I'm working on this, please back again later.
+
+                      </p>
+
+                      <small>
+                        mr. packman
+                      </small>
+                    </blockquote>
+                  </div>
+
+
+                </div>
+
+                <div
+                  style="height: 400px; width: 100%;display: flex;justify-content: center;align-items: center;background-color: rgb(51,51,51)"
+                  *ngIf="playerError">
+                  <div class="col-xs-4 col-sm-4" style="display: flex;justify-content: center;align-items: center;">
+                    <!--<i class="ace-icon fa fa-frown-o grey bigger-300"></i>-->
+                    <img src="assets/images/pacman.svg" alt="">
+                  </div>
+
+                  <div class="col-xs-8 col-sm-8">
+                    <blockquote>
+                      <p class="line-height-125 grey">
+                        ERROR PLAYING MOVIE.<br>
+                        Please select another source server.
+                      </p>
+
+                      <small>
+                        mr. packman
+                      </small>
+                    </blockquote>
+                  </div>
+                </div>
+
+                <div [hidden]="!showPlayer">
+                  <div id="jwplayer">
+                  </div>
+                </div>
+
+                <div id="iframe" *ngIf="showIframe" [hidden]="playerLoading" style="height: 400px">
+                  <iframe id="frameTag" width="100%" height="400" [src]="iframetag" frameborder="0" allowfullscreen
+                          (load)="onloadEmbed()"></iframe>
+
+                </div>
+
+              </div>
+            </div>
+
+            <div class="widget-toolbox padding-8 clearfix">
+              <div class="player-btn-left">
+                <button class="btn btn-xs btn-danger"
+                        (click)="modalYoutube.show(movie?.trailer)">
+                  <i class="ace-icon fa fa-film icon-on-left"></i>
+                  Trailer
+                </button>
+                <button
+                  [disabled]="!showPlayer"
+                  class="btn btn-xs btn-purple" (click)="modalSubtitles.show()">
+                  <i class="ace-icon fa fa-cc icon-on-right"></i>
+                  Subtitles
+                </button>
+              </div>
+
+              <div class="player-btn-right">
+                <button class="btn btn-xs btn-success">
+                  <i class="ace-icon fa fa-download icon-on-right"></i>
+                  download
+                </button>
+                <button class="btn btn-xs btn-yellow">
+                  <i class="ace-icon fa fa-exclamation-triangle icon-on-right red"></i>
+                  <span class="red">report broken</span>
+                </button>
+              </div>
+              <div class="space"></div>
+              <div class="hr hr28 hr-dotted"></div>
+
+              <div class="widget-box transparent">
+                <div class="widget-body" style="display: block;">
+                  <div class="widget-main no-padding">
+                    <table class="table table-bordered table-striped">
+                      <thead class="thin-border-bottom">
+                      <tr>
+                        <th>
+                          <i class="ace-icon fa fa-sitemap icon-on-left"></i>
+                          server
+                        </th>
+
+                        <th>
+                          <i class="ace-icon fa fa-expand icon-on-left"></i>
+                          resolution & quality
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody *ngIf="movie?.streamLinks.length > 0">
+
+                      <tr *ngFor="let x of streamGroup;">
+                        <td class="align-middle">{{x.key}}
+                          <span class="badge badge-info" *ngIf="x.key==='BIG-G'">default</span>
+                        </td>
+
+                        <td>
+                          <button *ngFor="let item of x.value;"
+                                  (click)="changeSource(item)"
+                                  style="margin-right: 5px"
+                                  type="button"
+                                  class="btn btn-white btn-xs"
+                                  [ngClass]="!item.isIframe?'btn-primary':'btn-danger'">
+                            <i class="ace-icon fa fa-caret-right playing" *ngIf="item==currentPlaying"></i>
+                            {{item.resolution}}p
+                            <span
+                              class="label"
+                              [ngClass]="item.quality==='Bluray'||item.quality==='WEB-DL'||item.quality==='HDRip'||item.quality==='BDRip'||item.quality==='DVDRip'?'label-danger':'label-default'">
+                              {{item.quality}}
+                              </span>
+                            <!--<span-->
+                            <!--*ngIf="item.isIframe"-->
+                            <!--class="label"-->
+                            <!--[ngClass]="{'label-success': item.quality==='Bluray'||item.quality==='WEB-DL'||item.quality==='HDRip'||item.quality==='BDRip'||item.quality==='DVDRip'}">-->
+                            <!--{{item.quality}}-->
+                            <!--</span>-->
+                          </button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div><!-- /.widget-main -->
+                </div><!-- /.widget-body -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-12">
+
+            <!--- poster --->
+            <div class="col-md-3 col-sm-3 col-xs-12 poster">
+              <span class="profile-picture">
+                <img
+                  src="https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&resize_w=200&url={{movie?.posterLink}}"
+                  alt=""
+                  onerror="this.src='assets/images/no-thumb.png';" width="100%" height="100%">
+              </span>
+              <div class="space-4"></div>
+            </div>
+            <!--- meta --->
+            <div class="row">
+              <div class="col-md-9 col-sm-9 col-xs-12 no-padding">
+                <h3 class="smaller dark blue no-margin-top">
+                  <i class="ace-icon fa fa-film"></i>
+                  {{movie?.title}} ({{movie?.releaseYear}})
+                </h3>
+                <span class="label label-info">
+												<i class="ace-icon fa fa-user bigger-120"></i>
+												{{movie?.user.name}}
+											</span>
+                <span class="label label-info">
+												<i class="ace-icon fa fa-calendar bigger-120"></i>
+												{{movie?.lastUpdate | date: 'dd-MM-yyyy'}}
+											</span>
+                <span class="label label-warning">
+												<i class="ace-icon fa fa-eye bigger-120"></i>
+												{{movie?.views}} views
+											</span>
+                <hr>
+                <div class="col-md-12 col-xs-12 widget-container-col ui-sortable movie-meta">
+                  <div class="profile-user-info profile-user-info-striped">
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> Genres</div>
+
+                      <div class="profile-info-value">
+                  <span class="editable editable-click"
+                        *ngFor="let genre of movie?.genres"
+                        [routerLink]="['/movies/genre/', genre.name|lowercase,1]"
+                        [queryParams]="{ 'sort' : 'recent_post'}">{{genre.name}}</span>
+                      </div>
+                    </div>
+
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> Type</div>
+
+                      <div class="profile-info-value">
+                        <span class="editable editable-click">{{movie?.type}}</span>
+                      </div>
+                    </div>
+
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> Country</div>
+
+                      <div class="profile-info-value">
+                        <i class="fa fa-map-marker light-orange bigger-110"></i>
+                        <span class="editable editable-click"
+                              *ngFor="let country of movie?.countries"
+                              [routerLink]="['/movies/country/', country.countryName|lowercase,1]"
+                              [queryParams]="{ 'sort' : 'recent_post'}">{{country.countryName}}</span>
+
+                      </div>
+                    </div>
+
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> Stars</div>
+
+                      <div class="profile-info-value">
+                  <span class="editable editable-click"
+                        *ngFor="let actor of movie?.cast"
+                        [routerLink]="['/movies/actor/', actor.actorName|lowercase,1]"
+                        [queryParams]="{ 'sort' : 'recent_post'}">{{actor.actorName}}</span>
+
+                      </div>
+                    </div>
+
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> Release</div>
+
+                      <div class="profile-info-value">
+                  <span class="editable editable-click"
+                        [routerLink]="['/movies/year/', movie?.releaseYear,1]"
+                        [queryParams]="{ 'sort' : 'recent_post'}">{{movie?.releaseYear}}</span>
+                      </div>
+                    </div>
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> IMDB Rating</div>
+
+                      <div class="profile-info-value">
+                        <span class="editable">{{movie?.rating}}</span>
+                      </div>
+                    </div>
+
+                    <div class="profile-info-row" *ngIf="movie?.streamLinks[0]!=null">
+                      <div class="profile-info-name"> Quality</div>
+
+                      <div class="profile-info-value">
+                        <span class="editable editable-click"
+                              [routerLink]="['/movies/quality/', movie?.streamLinks[0].quality.quality|lowercase,1]"
+                              [queryParams]="{ 'sort' : 'recent_post'}">{{movie?.streamLinks[0].quality.quality}}</span>
+                      </div>
+                    </div>
+
+                    <div class="profile-info-row" *ngIf="movie?.streamLinks[0]!=null">
+                      <div class="profile-info-name"> Resolution</div>
+
+                      <div class="profile-info-value">
+                  <span class="editable editable-click"
+                        [routerLink]="['/movies/resolution/', movie?.streamLinks[0].resolution.resolution,1]"
+                        [queryParams]="{ 'sort' : 'recent_post'}">{{movie?.streamLinks[0].resolution.resolution}}</span>
+                      </div>
+                    </div>
+
+                    <!--<div class="profile-info-row">-->
+                    <!--<div class="profile-info-name"> File Size</div>-->
+
+                    <!--<div class="profile-info-value">-->
+                    <!--<span class="editable">{{movie?.fileSize}}</span>-->
+                    <!--</div>-->
+                    <!--</div>-->
+
+                    <div class="profile-info-row">
+                      <div class="profile-info-name"> Duration</div>
+                      <div class="profile-info-value">
+                        <span class="editable">{{movie?.duration}} min</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+
+          </div>
+        </div>
+
+
+        <!--- synopsis --->
+        <div class="col-md-12 text-justify">
+          <h3 class="header smaller lighter red">Synopsis</h3>
+
+          <div *ngIf=movie?.synopsis [innerHTML]="movie?.synopsis"></div>
+
+          <hr>
+
+
+          <div class="well well-sm">
+            Tags :
+            <a [routerLink]="['/movies/tag/', tag.tagName,1]"
+               [queryParams]="{ 'sort' : 'recent_post'}"
+               *ngFor="let tag of movie?.tags;let isLast=last"><strong>{{tag.tagName}}</strong>{{isLast ?
+              '' : ', '}}</a>
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+      <div class="col-md-4">
+        <app-series-list [movie]="movie" *ngIf="movie?.type==='tv'">
+
+        </app-series-list>
+
+        <h4 class="header smaller dark purple align-left">You may like</h4>
+
+
+        <div *ngIf="sidebarLoading" style="text-align: center; height: 300px">
+          <img src="assets/images/ellipsis.svg" alt="">
+        </div>
+        <div *ngIf="!sidebarLoading">
+          <app-movie-sidebar *ngFor="let movie of movies | slice:0:8;let isLast=last" [movie]="movie">
+
+          </app-movie-sidebar>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.page-content -->
+
+
+<app-modal-youtube>
+  <div class="app-modal-header">
+    {{movie?.title}} ({{movie?.releaseYear}}) Trailer
+  </div>
+  <div class="app-modal-body">
+
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-default" (click)="modalYoutube.hide()">Close</button>
+  </div>
+</app-modal-youtube>
+
+
+<app-modal-subtitles>
+  <div class="app-modal-header">
+    LOAD YOUR SUBTITLES
+  </div>
+  <div class="app-modal-body">
+
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-sm btn-danger" (click)="switchSubOff()">SWITCH SUB OFF</button>
+  </div>
+</app-modal-subtitles>

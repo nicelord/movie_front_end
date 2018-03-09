@@ -1,0 +1,131 @@
+<div class="col-md-2 col-sm-6 col-xs-6">
+<div class="clear"></div>
+  <div class="thumbnail box">
+    <div class="poster">
+     <img
+        [defaultImage]="defaultImage"
+        [lazyLoad]="image+movie.posterLink"
+        [offset]="offset"
+        [errorImage]="defaultImage"
+        alt="" style="cursor: pointer;object-fit: cover"
+        [routerLink]="['/movie', (movie.title+'.'+movie.movieId).split(' ').join('-') | lowercase,'watch']"
+        width="100%" height="206">
+
+
+      <div class="tags">
+        <span class="label-holder">
+					<span class="label label-danger arrowed-in" *ngIf="movie.type=='cinema'">
+             <i class="ace-icon fa fa-star-half-o bigger-120"></i>
+             {{movie.rating}}
+          </span>
+
+          <span class="label label-pink arrowed-in" *ngIf="movie.type=='tv'">
+             <i class="ace-icon fa fa-info"></i>
+             SE{{movie.season}} EP{{movie.episode}}
+          </span>
+
+        </span>
+
+
+        <span class="label-holder" [routerLink]="['/movies/quality/', movie.streamLinks[0].quality.quality|lowercase,1]"
+              *ngIf="movie.streamLinks[0]!=null"
+              [queryParams]="{ 'sort' : sort==null?'recent_post':sort }">
+				  <span class="label label-info arrowed-in">
+            <i class="ace-icon fa fa-trophy bigger-120" *ngIf="movie.streamLinks[0].quality.quality=='Bluray'"></i>
+            <i class="ace-icon fa fa-thumbs-up bigger-120" *ngIf="movie.streamLinks[0].quality.quality=='WEB-DL'"></i>
+            <i class="ace-icon fa fa-thumbs-up bigger-120" *ngIf="movie.streamLinks[0].quality.quality=='BDRip'"></i>
+            <i class="ace-icon fa fa-thumbs-up bigger-120" *ngIf="movie.streamLinks[0].quality.quality=='HDRip'"></i>
+            <i class="ace-icon fa fa-thumbs-up bigger-120" *ngIf="movie.streamLinks[0].quality.quality=='DVDRip'"></i>
+            {{movie.streamLinks[0].quality.quality}}
+          </span>
+				</span>
+
+        <span class="label-holder" [routerLink]="['/movies/resolution/', movie.streamLinks[0].resolution.resolution|lowercase,1]"
+              *ngIf="movie.streamLinks[0]!=null"
+              [queryParams]="{ 'sort' : sort==null?'recent_post':sort }">
+          <span class="label label-success arrowed-in">
+            {{movie.streamLinks[0].resolution.resolution}}p</span>
+        </span>
+      </div>
+
+
+      <!--<span class="label label-sm middle tag-rating">-->
+      <!--Rating : 7.8-->
+      <!--</span>-->
+
+    </div>
+    <div style="height: 65px;text-align:center;">
+        <div style="height: 65px;text-align:center;">
+          <h5 class="dark title bolder">
+            <a [routerLink]="['/movie', (movie.title+'.'+movie.movieId).split(' ').join('-') | lowercase,'watch']"> {{movie.title | slice:0:40 }} {{movie.title.length < 40 ? '' : '...'}}</a>
+          </h5>
+        </div>
+    </div>
+    <div class="profile-user-info profile-user-info-striped">
+
+      <div class="profile-info-row">
+        <div class="profile-info-name"> Genre</div>
+
+        <div class="profile-info-value">
+          <span class="editable editable-click"
+                [routerLink]="['/movies/genre/', movie.genres[0].name|lowercase,1]"
+                [queryParams]="{ 'sort' : sort==null?'recent_post':sort }">
+            {{movie.genres[0].name | slice:0:13}} {{movie.genres[0].name.length < 13 ? '' : '...'}}</span>
+
+        </div>
+      </div>
+
+      <!--<div class="profile-info-row">-->
+        <!--<div class="profile-info-name"> Countries</div>-->
+
+        <!--<div class="profile-info-value">-->
+          <!--<span class="editable editable-click"-->
+                <!--[routerLink]="['/movies/country/', movie.countries[0].countryName|lowercase]">{{movie.countries[0].countryName | slice:0:10}} {{movie.countries[0].countryName.length < 10 ? '' : '...'}}</span>-->
+        <!--</div>-->
+      <!--</div>-->
+
+      <div class="profile-info-row">
+        <div class="profile-info-name"> Year</div>
+
+        <div class="profile-info-value">
+          <span class="editable editable-click"
+                [routerLink]="['/movies/year/', movie.releaseYear,1]"
+                [queryParams]="{ 'sort' : sort==null?'recent_post':sort }">
+            {{movie.releaseYear}}
+          </span>
+        </div>
+      </div>
+
+    </div>
+    <div class="" style="padding: 4px 0px 0px 0px;">
+      <button class="btn btn-xs btn-danger btn-block" style="width: 100%"
+              (click)="modalYoutube.show(movie.trailer)">
+        <i class="ace-icon fa fa-film icon-on-left"></i>
+        Trailer
+      </button>
+      <button [routerLink]="['/movie', (movie.title+'.'+movie.movieId).split(' ').join('-') | lowercase,'watch']" class="btn btn-xs btn-success btn-block" style="width: 100%">
+        <i class="ace-icon fa fa-eye icon-on-left"></i>
+        Watch Movie
+      </button>
+    </div>
+
+  </div>
+
+
+
+
+</div>
+
+<app-modal-youtube>
+  <div class="app-modal-header">
+    {{movie.title}} Trailer
+  </div>
+  <div class="app-modal-body">
+
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-default" (click)="modalYoutube.hide()">Close</button>
+  </div>
+</app-modal-youtube>
+
+

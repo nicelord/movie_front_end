@@ -1,0 +1,7 @@
+.modal {
+  background: rgba(0,0,0,0.6);
+}
+
+.ace-file-input .ace-file-container.selected {
+  right: 0px;
+}

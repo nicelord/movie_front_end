@@ -1,0 +1,209 @@
+<div class="page-content">
+  <!-- /.cinemas -->
+  <div class="page-header">
+    <h1>
+      {{router.url.startsWith('/movies')?'Movies':'Cinema'}}
+      <ng-container *ngIf="router.url!='/'; else home_movies">
+        <small *ngFor="let item of router.url.replace('/movies/','').split('/').slice(0,2); let i=index">
+          <i class="ace-icon fa fa-angle-double-right"></i>
+          {{uriFormat(router.url.replace('/movies/','').split('/')[i])}}
+        </small>
+
+        <div class="pull-right">
+          <span class="green middle bolder small">Sort: &nbsp;</span>
+          <div class="btn-toolbar inline middle no-margin">
+            <div data-toggle="buttons" class="btn-group no-margin">
+              <label [routerLink]="['/movies/'+by+'/', value,page]"
+                     [queryParams]="{ 'sort': 'recent_post' }"
+                     [ngClass]="{'active': sort=='recent_post'}" class="btn btn-sm btn-yellow">
+                <span class="bigger-110">recent post</span>
+
+                <input type="radio" value="2"/>
+              </label>
+
+              <label [routerLink]="['/movies/'+by+'/', value,page]"
+                     [queryParams]="{ 'sort': 'last_update' }"
+                     [ngClass]="{'active': sort!='recent_post'}" class="btn btn-sm btn-yellow active">
+                <span class="bigger-110">last updated</span>
+                <input type="radio" value="1"/>
+              </label>
+
+
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #home_movies>
+        <small>
+          <i class="ace-icon fa fa-angle-double-right"></i>
+          latest
+        </small>
+
+        <div class="pull-right">
+          <div class="btn-toolbar inline middle no-margin">
+            <div
+              [routerLink]="['/movies/type/', 'cinema',1]"
+              [queryParams]="{ 'sort' : sort==null?'last_update':sort }"
+              data-toggle="buttons" class="btn-group no-margin">
+              <label class="btn btn-sm btn-yellow">
+                <span class="bigger-110">view all</span>
+                <input type="radio" value="1"/>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </ng-template>
+
+    </h1>
+
+  </div><!-- /.page-header -->
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <!-- PAGE CONTENT BEGINS -->
+      <div>
+        <div *ngIf="isLoading" style="text-align: center">
+          <img src="assets/images/ellipsis.svg" alt="">
+        </div>
+
+        <div *ngIf="message != null" style="text-align: center">
+          {{message}}
+        </div>
+
+        <div *ngIf="!isLoading && movies.length <= 0" style="text-align: center">
+          <div class="alert alert-danger">
+            <strong>
+              <i class="ace-icon fa fa-times"></i>
+              Oh snap!
+            </strong>
+            no movie(s) found
+          </div>
+        </div>
+        <div *ngIf="!isLoading">
+          <app-movie *ngFor="let movie of movies" [movie]="movie">
+
+          </app-movie>
+        </div>
+      </div>
+      <!-- PAGE CONTENT ENDS -->
+    </div>
+    <div class="col-md-12 col-xs-12" style="width: 100%;text-align: center" *ngIf="router.url!='/'&&movies?.length!=0">
+      <ul class="pagination">
+        <li *ngIf="curPage>2" [ngClass]="{'disabled' : curPage==1}">
+          <a [routerLink]="['/movies/'+by+'/', value,1]"
+             [queryParams]="{ 'sort' : sort==null?'last_update':sort }">
+            <i class="ace-icon fa fa-angle-double-left"></i>
+          </a>
+        </li>
+        <li *ngIf="curPage>1" [ngClass]="{'disabled' : curPage==1}">
+          <a [routerLink]="curPage==1?null:['/movies/'+by+'/', value,curPage-1]"
+             [queryParams]="{ 'sort' : sort==null?'last_update':sort }">
+            <i class="ace-icon fa fa-angle-left"></i>
+          </a>
+        </li>
+
+
+        <li *ngIf="paginate(curPage).slice(0)[0]>1">
+          <a>...</a>
+        </li>
+
+        <li [ngClass]="{'active' : curPage==page+1}"
+            *ngFor="let page of paginate(curPage);let i=index">
+          <a [routerLink]="['/movies/'+by+'/', value,page+1]"
+             [queryParams]="{ 'sort' : sort==null?'last_update':sort }">{{page+1}}</a>
+        </li>
+
+        <!--<li [ngClass]="{'active' : curPage==page+1}"-->
+        <!--*ngFor="let page of paginate(curPage);let i=index">-->
+        <!--<a href="/movies/{{by}}/{{value}}/{{page+1}}?sort={{sort}}">{{page+1}}</a>-->
+        <!--</li>-->
+
+        <li *ngIf="(paginate(curPage).slice(-1)[0]+1) < totalPage?.length">
+          <a>...</a>
+        </li>
+
+        <li *ngIf="totalPage?.length-curPage>=1" [ngClass]="{'disabled' : curPage==totalPage?.length}">
+          <a [routerLink]="curPage==totalPage?.length?null:['/movies/'+by+'/', value,curPage+1]"
+             [queryParams]="{ 'sort' : sort==null?'last_update':sort }">
+            <i class="ace-icon fa fa-angle-right"></i>
+          </a>
+        </li>
+        <li *ngIf="totalPage?.length-curPage>=2" [ngClass]="{'disabled' : curPage==totalPage?.length}">
+          <a [routerLink]="['/movies/'+by+'/', value,totalPage?.length]"
+             [queryParams]="{ 'sort' : sort==null?'last_update':sort }">
+            <i class="ace-icon fa fa-angle-double-right"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- /.col -->
+  </div>
+  <!-- /.cinemas -->
+
+  <!-- /.tvs -->
+  <ng-container *ngIf="router.url==='/'">
+    <div class="space"></div>
+    <div class="page-header">
+      <h1>
+        TV Series
+        <small>
+          <i class="ace-icon fa fa-angle-double-right"></i>
+          latest
+        </small>
+
+        <div class="pull-right">
+          <div class="btn-toolbar inline middle no-margin">
+            <div
+              [routerLink]="['/movies/type/', 'tv',1]"
+              [queryParams]="{ 'sort' : sort==null?'last_update':sort }"
+              data-toggle="buttons" class="btn-group no-margin">
+              <label class="btn btn-sm btn-yellow">
+                <span class="bigger-110">view all</span>
+                <input type="radio" value="1"/>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </h1>
+    </div><!-- /.page-header -->
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <!-- PAGE CONTENT BEGINS -->
+        <div>
+
+          <div *ngIf="isLoading" style="text-align: center">
+            <img src="assets/images/ellipsis.svg" alt="">
+          </div>
+
+          <div *ngIf="message != null" style="text-align: center">
+            {{message}}
+          </div>
+
+          <div *ngIf="!isLoading && tvs.length <= 0" style="text-align: center">
+            <div class="alert alert-danger">
+              <strong>
+                <i class="ace-icon fa fa-times"></i>
+                Oh snap!
+              </strong>
+              no tv(s) found
+            </div>
+          </div>
+
+          <app-movie *ngFor="let tv of tvs" [movie]="tv">
+
+          </app-movie>
+
+
+        </div>
+        <!-- PAGE CONTENT ENDS -->
+      </div>
+      <!-- /.col -->
+    </div>
+  </ng-container>
+  <!-- /.tvs -->
+
+
+</div><!-- /.page-content -->
+

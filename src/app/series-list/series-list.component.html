@@ -1,0 +1,50 @@
+<div class="col-xs-12 widget-container-col ui-sortable no-padding">
+<div class="widget-box widget-color-dark ui-sortable-handle">
+  <div class="widget-header">
+    <h5 class="widget-title bigger lighter">
+      <i class="ace-icon fa fa-list-ol"></i>
+      {{movie?.playlist?.name}} Playlist
+    </h5>
+  </div>
+
+  <div class="widget-body">
+    <div class="widget-main no-padding">
+      <table class="table table-striped table-bordered table-hover">
+
+        <tbody>
+
+        <div *ngIf="isLoading" style="text-align: center; height: 300px">
+          <img src="assets/images/ellipsis.svg" alt="">
+        </div>
+
+        <tr *ngFor="let m of moviePlaylist" class="red">
+          <td class="" width="15%">EPS-{{m.episode}}</td>
+
+          <td width="75%">
+            <div class="truncate-ellipsis" >
+              <a href="#" [routerLink]="['/movie', (m.title+'.'+m.movieId).split(' ').join('-') | lowercase,'watch']">{{m.title}}</a>
+            </div>
+
+          </td>
+
+          <td class="hidden-480" width="10%">
+            <button class="btn btn-xs smaller-40" [ngClass]="(m.movieId == movie?.movieId)?'btn-success':'btn-danger'" [disabled]="m.movieId == movie?.movieId"
+                    [routerLink]="['/movie', (m?.title+'.'+m?.movieId).split(' ').join('-') | lowercase,'watch']">
+              <i class="ace-icon fa fa-play bigger-200 icon-only"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="center">
+          <td colspan="3">
+            <a href=""> more... </a>
+          </td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+  <div class="space"></div>
+</div>
+
